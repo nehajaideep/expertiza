@@ -23,6 +23,13 @@ class Assessment360Controller < ApplicationController
     @meta_review = {}
     @teammate_review = {}
     @teamed_count = {}
+
+    @show_teammate_reviews = false
+    @show_meta_reviews = false
+    @show_peer_scores = false
+    @show_instructor_grades = false
+    @show_avg_peer_reviews = false
+
     # for course
     # eg. @overall_teammate_review_grades = {assgt_id1: 100, assgt_id2: 178, ...}
     # @overall_teammate_review_count = {assgt_id1: 1, assgt_id2: 2, ...}
@@ -85,6 +92,7 @@ class Assessment360Controller < ApplicationController
     @topics = {}
     @assignment_grades = {}
     @peer_review_scores = {}
+    @avg_peer_review_scores = {}
     @final_grades = {}
 
     course = Course.find(params[:course_id])
@@ -100,6 +108,7 @@ class Assessment360Controller < ApplicationController
       @assignment_grades[cp.id] = {}
       @peer_review_scores[cp.id] = {}
       @final_grades[cp.id] = 0
+      @avg_peer_review_scores[cp.id] = 0
 
       @assignments.each do |assignment|
         user_id = cp.user_id
@@ -127,6 +136,7 @@ class Assessment360Controller < ApplicationController
         # peer_review_score hash won't have the key :review if the assignment doesn't have a review rubric assigned to it
         unless peer_review_score.nil? || !peer_review_score.key?('review') || peer_review_score[:review][:scores][:avg].nil?
           @peer_review_scores[cp.id][assignment_id] = peer_review_score[:review][:scores][:avg].round(2)
+          @avg_peer_review_scores[cp.id] += @peer_review_scores[cp.id][assignment_id]
         end
       end
     end
@@ -174,6 +184,12 @@ class Assessment360Controller < ApplicationController
     score.nil? ? '-' : score
   end
 
+  def send_scores
+
+  end
+
+
   helper_method :format_score
   helper_method :format_topic
 end
+
